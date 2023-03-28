@@ -7,6 +7,7 @@ export class Searchbar extends React.Component<ISearchbarProps> {
     this.fetchPics(e).then((data) => {
       console.log(data)
       this.props.submitHandler(data)
+      this.props.totalHitsChecker(data)
     })
   }
 
