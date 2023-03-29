@@ -1,9 +1,12 @@
 export interface IAppState {
-  response: IImageData[]
-  page: number
-  loading: boolean
-  totalHits: number
+  searchInput: string
 }
+// export interface IAppState {
+//   response: IImageData[]
+//   page: number
+//   loading: boolean
+//   totalHits: number
+// }
 
 export interface IImageData {
   id: string
@@ -13,11 +16,7 @@ export interface IImageData {
 }
 
 export interface ISearchbarProps {
-  submitHandler: (serverResponse: IserverResponseData) => void
-  totalHitsChecker: (serverResponse: IserverResponseData) => void
-  // fetchHandler: (e: React.SyntheticEvent) => IserverResponseData
-  fetchHandler: (e: React.SyntheticEvent) => Promise<IserverResponseData>
-  pagesReseter: () => void
+  submitHandler: (value: string) => void
 }
 
 export interface IserverResponseData {
@@ -27,7 +26,7 @@ export interface IserverResponseData {
 }
 
 export interface IButtonProps {
-  submitHandler: (serverResponse: IserverResponseData) => void
+  // submitHandler: (serverResponse: IserverResponseData) => void
   fetchHandler: (e: React.SyntheticEvent) => Promise<IserverResponseData>
   pagesIncrementor: () => void
 }

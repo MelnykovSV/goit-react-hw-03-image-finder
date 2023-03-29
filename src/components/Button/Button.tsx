@@ -8,7 +8,7 @@ export class Button extends React.Component<IButtonProps> {
     const data = await this.props.fetchHandler(e)
     console.log(data)
 
-    this.props.submitHandler(data)
+    // this.props.submitHandler(data)
   }
 
   render() {

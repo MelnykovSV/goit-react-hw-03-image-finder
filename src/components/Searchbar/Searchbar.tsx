@@ -4,13 +4,11 @@ import { ISearchbarProps } from '../../interfaces'
 export class Searchbar extends React.Component<ISearchbarProps> {
   formSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
+    const target = e.target as typeof e.target & {
+      searchInput: { value: string }
+    }
 
-    const data = await this.props.fetchHandler(e)
-    console.log(data)
-    this.props.pagesReseter()
-
-    this.props.submitHandler(data)
-    this.props.totalHitsChecker(data)
+    this.props.submitHandler(target.searchInput.value)
   }
 
   render() {
