@@ -1,7 +1,9 @@
 import React from 'react'
 import { IAppState } from '../../interfaces'
+import { IserverResponseData } from '../../interfaces'
 
 import { Searchbar } from '../Searchbar/Searchbar'
+import { Button } from '../Button/Button'
 
 export class App extends React.Component<{}, IAppState> {
   state = {
@@ -11,20 +13,19 @@ export class App extends React.Component<{}, IAppState> {
     totalHits: 0,
   }
 
-  handleFormSubmit = (serverResponse, hitsFound) => {
-    this.setState({ response: serverResponse })
-    this.setState({ hits: hitsFound })
+  handleFormSubmit = (serverResponse: IserverResponseData) => {
+    this.setState({ response: serverResponse.hits })
   }
 
-  checkTotalHits = (data) => {
-    if (data.hits.length !== 0) {
-      if (data.totalHits >= 500) {
+  checkTotalHits = (serverResponse: IserverResponseData) => {
+    if (serverResponse.hits.length !== 0) {
+      if (serverResponse.totalHits >= 500) {
         /// 500-519 hits
 
-        if (data.total.length < 520) {
-          console.log(`We got ${Math.ceil(data.total.length / 40)} pages`)
-          console.log(`We got ${data.total.length} hits`)
-          this.setState({ totalHits: data.total.length })
+        if (serverResponse.total < 520) {
+          console.log(`We got ${Math.ceil(serverResponse.total / 40)} pages`)
+          console.log(`We got ${serverResponse.total} hits`)
+          this.setState({ totalHits: serverResponse.total })
 
           return
         }
@@ -39,15 +40,42 @@ export class App extends React.Component<{}, IAppState> {
       }
 
       /// 1-499 hits
-      console.log(`We got ${Math.ceil(data.totalHits / 40)} pages`)
-      console.log(`We got ${data.totalHits} hits`)
-      this.setState({ totalHits: data.totalHits })
+      console.log(`We got ${Math.ceil(serverResponse.totalHits / 40)} pages`)
+      console.log(`We got ${serverResponse.totalHits} hits`)
+      this.setState({ totalHits: serverResponse.totalHits })
 
       return
     }
 
     console.log('Sorry, there are no images matching your search query. Please try again.')
     this.setState({ totalHits: 0 })
+  }
+
+  fetchPics = async (e: React.SyntheticEvent) => {
+    const urlBase = 'https://pixabay.com/api/?key=33543328-1e01a52b77697b8d064c91a7e'
+
+    const target = e.target as typeof e.target & {
+      searchInput: { value: string }
+    }
+    const response = await fetch(
+      `${urlBase}&q=${target.searchInput.value}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.state.page}`,
+    )
+
+    ///Адаптировать под кнопку, там нет значения value
+
+    const data = await response.json()
+
+    return data
+  }
+
+  resetPages = () => {
+    this.setState({ page: 1 })
+  }
+
+  incrementPages = () => {
+    this.setState((prevState) => {
+      return { page: prevState.page + 1 }
+    })
   }
 
   render() {
@@ -63,7 +91,17 @@ export class App extends React.Component<{}, IAppState> {
         }}
       >
         React homework template
-        <Searchbar submitHandler={this.handleFormSubmit} totalHitsChecker={this.checkTotalHits} />
+        <Searchbar
+          submitHandler={this.handleFormSubmit}
+          totalHitsChecker={this.checkTotalHits}
+          fetchHandler={this.fetchPics}
+          pagesReseter={this.resetPages}
+        />
+        <Button
+          fetchHandler={this.fetchPics}
+          pagesIncrementor={this.incrementPages}
+          submitHandler={this.handleFormSubmit}
+        />
       </div>
     )
   }
