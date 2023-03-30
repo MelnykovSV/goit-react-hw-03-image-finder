@@ -1,20 +1,26 @@
 import React from 'react'
 
+import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem'
+import { Button } from '../Button/Button'
+
 export class ImageGallery extends React.Component {
   state = {
     status: 'idle',
     page: 1,
     totalHits: 0,
     picsToRender: [],
-    searchInput: this.props.searchInput,
+    searchInput: '',
 
     error: null,
   }
 
   componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<{}>, snapshot?: any): void {
     if (this.props.searchInput !== prevProps.searchInput) {
-      this.setState({ searchInput: this.props.searchInput })
-      // this.fetchPics()
+      this.setState({ searchInput: this.props.searchInput, page: 1 }, this.fetchPics)
+      return
+    }
+    if (this.state.page !== prevState.page && this.state.page !== 1) {
+      this.fetchMorePics()
     }
   }
 
@@ -22,14 +28,38 @@ export class ImageGallery extends React.Component {
     const urlBase = 'https://pixabay.com/api/?key=33543328-1e01a52b77697b8d064c91a7e'
 
     this.setState({ status: 'loading' })
-
+    console.log('fetch started')
     try {
       const response = await fetch(
         `${urlBase}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.state.page}`,
       )
       const data = await response.json()
       this.checkTotalHits(data)
+      console.log(data)
       this.setState({ picsToRender: data.hits })
+    } catch {
+      this.setState({ status: 'error' })
+    } finally {
+      this.setState({ status: 'loaded' })
+    }
+  }
+  fetchMorePics = async () => {
+    const urlBase = 'https://pixabay.com/api/?key=33543328-1e01a52b77697b8d064c91a7e'
+
+    this.setState({ status: 'loading' })
+    console.log('fetch started')
+    try {
+      const response = await fetch(
+        `${urlBase}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.state.page}`,
+      )
+      const data = await response.json()
+      this.checkTotalHits(data)
+      console.log(data)
+      this.setState((prevState) => {
+        console.log(data.hits)
+        console.log(this.state.picsToRender)
+        return { picsToRender: [...prevState.picsToRender, ...data.hits] }
+      })
     } catch {
       this.setState({ status: 'error' })
     } finally {
@@ -51,6 +81,7 @@ export class ImageGallery extends React.Component {
         }
 
         /// 520+ hits
+        console.log(serverResponse)
 
         console.log(`We got ${13} pages`)
         console.log(`We got ${520} hits`)
@@ -70,8 +101,30 @@ export class ImageGallery extends React.Component {
     console.log('Sorry, there are no images matching your search query. Please try again.')
     this.setState({ totalHits: 0 })
   }
+
+  incrementPages = (e) => {
+    console.log('increment')
+    this.setState((prevState) => {
+      if (Math.ceil(this.totalHits / 40) === prevState.page + 1) {
+        e.target.disabled = true
+      }
+
+      return { page: prevState.page + 1 }
+    })
+  }
+
   render() {
     console.log('gallery render')
-    return <div></div>
+    return (
+      <ul className='gallery'>
+        {!(this.state.page === Math.ceil(this.state.totalHits / 40)) && (
+          <Button pageIncrementor={this.incrementPages} />
+        )}
+
+        {this.state.picsToRender.map((item) => {
+          return <ImageGalleryItem webformatURL={item.webformatURL} tags={item.tegs} key={item.id} />
+        })}
+      </ul>
+    )
   }
 }

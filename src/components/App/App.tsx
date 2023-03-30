@@ -8,7 +8,7 @@ import { ImageGallery } from '../ImageGallery/ImageGallery'
 
 export class App extends React.Component<{}, IAppState> {
   state = {
-    searchInput: '123',
+    searchInput: '',
   }
 
   handleFormSubmit = (value: string) => {
@@ -16,18 +16,9 @@ export class App extends React.Component<{}, IAppState> {
   }
 
   render() {
-    console.log('searchbar render')
+    console.log('app render')
     return (
-      <div
-        style={{
-          height: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontSize: 40,
-          color: '#010101',
-        }}
-      >
+      <div>
         React homework template
         <Searchbar submitHandler={this.handleFormSubmit} />
         <ImageGallery searchInput={this.state.searchInput}>{/* <Button  /> */}</ImageGallery>
