@@ -1,21 +1,43 @@
 import React from 'react'
 
 export class ImageGallery extends React.Component {
+  state = {
+    status: 'idle',
+    page: 1,
+    totalHits: 0,
+    picsToRender: [],
+    searchInput: this.props.searchInput,
+
+    error: null,
+  }
+
+  componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<{}>, snapshot?: any): void {
+    if (this.props.searchInput !== prevProps.searchInput) {
+      this.setState({ searchInput: this.props.searchInput })
+      // this.fetchPics()
+    }
+  }
+
   fetchPics = async () => {
     const urlBase = 'https://pixabay.com/api/?key=33543328-1e01a52b77697b8d064c91a7e'
 
-    const response = await fetch(
-      `${urlBase}&q=${this.state.valueToSearch}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.state.page}`,
-    )
+    this.setState({ status: 'loading' })
 
-    ///Адаптировать под кнопку, там нет значения value
-
-    const data = await response.json()
-
-    this.setState({ picsToRender: data.hits })
+    try {
+      const response = await fetch(
+        `${urlBase}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.state.page}`,
+      )
+      const data = await response.json()
+      this.checkTotalHits(data)
+      this.setState({ picsToRender: data.hits })
+    } catch {
+      this.setState({ status: 'error' })
+    } finally {
+      this.setState({ status: 'loaded' })
+    }
   }
 
-  checkTotalHits = (serverResponse: IserverResponseData) => {
+  checkTotalHits = (serverResponse: IServerResponseData) => {
     if (serverResponse.hits.length !== 0) {
       if (serverResponse.totalHits >= 500) {
         /// 500-519 hits
@@ -47,5 +69,9 @@ export class ImageGallery extends React.Component {
 
     console.log('Sorry, there are no images matching your search query. Please try again.')
     this.setState({ totalHits: 0 })
+  }
+  render() {
+    console.log('gallery render')
+    return <div></div>
   }
 }

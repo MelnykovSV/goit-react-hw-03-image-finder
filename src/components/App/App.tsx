@@ -8,7 +8,7 @@ import { ImageGallery } from '../ImageGallery/ImageGallery'
 
 export class App extends React.Component<{}, IAppState> {
   state = {
-    searchInput: '',
+    searchInput: '123',
   }
 
   handleFormSubmit = (value: string) => {
@@ -16,6 +16,7 @@ export class App extends React.Component<{}, IAppState> {
   }
 
   render() {
+    console.log('searchbar render')
     return (
       <div
         style={{
@@ -29,9 +30,7 @@ export class App extends React.Component<{}, IAppState> {
       >
         React homework template
         <Searchbar submitHandler={this.handleFormSubmit} />
-        {/* <ImageGallery>
-          <Button pagesIncrementor={this.incrementPages} submitHandler={this.handleFormSubmit} />
-        </ImageGallery> */}
+        <ImageGallery searchInput={this.state.searchInput}>{/* <Button  /> */}</ImageGallery>
       </div>
     )
   }
