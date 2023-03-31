@@ -12,6 +12,7 @@ export class Searchbar extends React.Component<ISearchbarProps> {
   }
 
   render() {
+    console.log('searchbar render')
     return (
       <header className='searchbar'>
         <form className='form' onSubmit={this.formSubmit}>

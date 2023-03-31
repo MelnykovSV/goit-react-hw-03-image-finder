@@ -2,6 +2,7 @@ import React from 'react'
 
 import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem'
 import { Button } from '../Button/Button'
+import { IServerResponseData } from '../../interfaces'
 
 export class ImageGallery extends React.Component {
   state = {
@@ -16,52 +17,33 @@ export class ImageGallery extends React.Component {
 
   componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<{}>, snapshot?: any): void {
     if (this.props.searchInput !== prevProps.searchInput) {
-      this.setState({ searchInput: this.props.searchInput, page: 1 }, this.fetchPics)
+      this.setState({ searchInput: this.props.searchInput, page: 1 }, async () => {
+        const data = await this.fetchPics()
+        this.setState({ picsToRender: data.hits })
+      })
       return
     }
     if (this.state.page !== prevState.page && this.state.page !== 1) {
-      this.fetchMorePics()
-    }
-  }
-
-  fetchPics = async () => {
-    const urlBase = 'https://pixabay.com/api/?key=33543328-1e01a52b77697b8d064c91a7e'
-
-    this.setState({ status: 'loading' })
-    console.log('fetch started')
-    try {
-      const response = await fetch(
-        `${urlBase}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.state.page}`,
-      )
-      const data = await response.json()
-      this.checkTotalHits(data)
-      console.log(data)
-      this.setState({ picsToRender: data.hits })
-    } catch {
-      this.setState({ status: 'error' })
-    } finally {
-      this.setState({ status: 'loaded' })
-    }
-  }
-  fetchMorePics = async () => {
-    const urlBase = 'https://pixabay.com/api/?key=33543328-1e01a52b77697b8d064c91a7e'
-
-    this.setState({ status: 'loading' })
-    console.log('fetch started')
-    try {
-      const response = await fetch(
-        `${urlBase}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.state.page}`,
-      )
-      const data = await response.json()
-      this.checkTotalHits(data)
-      console.log(data)
-      this.setState((prevState) => {
-        console.log(data.hits)
-        console.log(this.state.picsToRender)
-        return { picsToRender: [...prevState.picsToRender, ...data.hits] }
+      this.fetchPics().then((data) => {
+        this.setState((prevState) => ({ picsToRender: [...prevState.picsToRender, ...data.hits] }))
       })
-    } catch {
+    }
+  }
+
+  fetchPics = async (): Promise<IServerResponseData> => {
+    const urlBase = 'https://pixabay.com/api/?key=33543328-1e01a52b77697b8d064c91a7e'
+
+    this.setState({ status: 'loading' })
+    try {
+      const response = await fetch(
+        `${urlBase}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.state.page}`,
+      )
+      const data = await response.json()
+      this.checkTotalHits(data)
+      return data
+    } catch (error) {
       this.setState({ status: 'error' })
+      throw error
     } finally {
       this.setState({ status: 'loaded' })
     }

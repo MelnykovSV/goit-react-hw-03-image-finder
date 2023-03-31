@@ -19,7 +19,7 @@ export interface ISearchbarProps {
   submitHandler: (value: string) => void
 }
 
-export interface IserverResponseData {
+export interface IServerResponseData {
   total: number
   totalHits: number
   hits: IImageData[]
