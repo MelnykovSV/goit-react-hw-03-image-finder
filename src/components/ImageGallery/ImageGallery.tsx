@@ -72,7 +72,7 @@ export class ImageGallery extends React.Component {
         return
       }
 
-      /// 1-499 hits
+      /// 1-499            hits
       console.log(`We got ${Math.ceil(serverResponse.totalHits / 40)} pages`)
       console.log(`We got ${serverResponse.totalHits} hits`)
       this.setState({ totalHits: serverResponse.totalHits })
@@ -83,6 +83,8 @@ export class ImageGallery extends React.Component {
     console.log('Sorry, there are no images matching your search query. Please try again.')
     this.setState({ totalHits: 0 })
   }
+
+  ///new comment
 
   incrementPages = (e) => {
     console.log('increment')
