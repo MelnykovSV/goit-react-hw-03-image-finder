@@ -1,5 +1,6 @@
 import React from 'react'
 import { ISearchbarProps } from '../../interfaces'
+import { Container } from './Searchbar.styled'
 
 export class Searchbar extends React.Component<ISearchbarProps> {
   formSubmit = async (e: React.SyntheticEvent) => {
@@ -14,7 +15,7 @@ export class Searchbar extends React.Component<ISearchbarProps> {
   render() {
     console.log('searchbar render')
     return (
-      <header className='searchbar'>
+      <Container className='searchbar'>
         <form className='form' onSubmit={this.formSubmit}>
           <button type='submit' className='button'>
             <span className='button-label'>Search</span>
@@ -29,7 +30,7 @@ export class Searchbar extends React.Component<ISearchbarProps> {
             placeholder='Search images and photos'
           />
         </form>
-      </header>
+      </Container>
     )
   }
 }

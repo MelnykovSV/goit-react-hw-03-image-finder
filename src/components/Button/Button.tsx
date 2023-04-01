@@ -1,5 +1,6 @@
 import React from 'react'
 import { IButtonProps } from '../../interfaces'
+import { Container } from './Button.styled'
 
 export class Button extends React.Component<IButtonProps> {
   // buttonClickHandler = async (e: React.SyntheticEvent) => {
@@ -13,9 +14,9 @@ export class Button extends React.Component<IButtonProps> {
 
   render() {
     return (
-      <button type='button' onClick={this.props.pageIncrementor}>
+      <Container type='button' onClick={this.props.pageIncrementor}>
         Get more
-      </button>
+      </Container>
     )
   }
 }

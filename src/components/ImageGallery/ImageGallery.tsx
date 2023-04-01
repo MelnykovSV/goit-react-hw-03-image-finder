@@ -3,6 +3,9 @@ import React from 'react'
 import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem'
 import { Button } from '../Button/Button'
 import { IServerResponseData } from '../../interfaces'
+import { Modal } from '../Modal/Modal'
+import { Container } from './ImageGallery.styled'
+import { Dna } from 'react-loader-spinner'
 
 export class ImageGallery extends React.Component {
   state = {
@@ -13,6 +16,7 @@ export class ImageGallery extends React.Component {
     searchInput: '',
 
     error: null,
+    showModal: false,
   }
 
   componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<{}>, snapshot?: any): void {
@@ -99,16 +103,35 @@ export class ImageGallery extends React.Component {
 
   render() {
     console.log('gallery render')
+
     return (
-      <ul className='gallery'>
+      <Container className='gallery'>
         {!(this.state.page === Math.ceil(this.state.totalHits / 40)) && (
           <Button pageIncrementor={this.incrementPages} />
         )}
 
         {this.state.picsToRender.map((item) => {
-          return <ImageGalleryItem webformatURL={item.webformatURL} tags={item.tegs} key={item.id} />
+          return (
+            <ImageGalleryItem
+              webformatURL={item.webformatURL}
+              tags={item.tags}
+              largeImageURL={item.largeImageURL}
+              imageClickHandler={this.props.imageClickHandler}
+              key={item.id}
+            />
+          )
         })}
-      </ul>
+        {this.state.status === 'loading' && (
+          <Dna
+            visible={true}
+            height='80'
+            width='80'
+            ariaLabel='dna-loading'
+            wrapperStyle={{}}
+            wrapperClass='dna-wrapper'
+          />
+        )}
+      </Container>
     )
   }
 }

@@ -27,6 +27,6 @@ export interface IServerResponseData {
 
 export interface IButtonProps {
   // submitHandler: (serverResponse: IserverResponseData) => void
-  fetchHandler: (e: React.SyntheticEvent) => Promise<IserverResponseData>
+  fetchHandler: (e: React.SyntheticEvent) => Promise<IServerResponseData>
   pagesIncrementor: () => void
 }
