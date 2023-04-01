@@ -7,8 +7,8 @@ export class ImageGalleryItem extends React.Component {
   }
 
   imageUrlDetector = () => {
-    console.log(this.state.largeImageURL)
-    this.props.imageClickHandler(this.state.largeImageURL)
+    console.log(this.props.tags)
+    this.props.imageClickHandler(this.state.largeImageURL, this.props.tags)
   }
   render() {
     return (
