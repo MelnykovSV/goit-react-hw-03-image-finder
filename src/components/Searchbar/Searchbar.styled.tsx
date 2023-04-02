@@ -53,19 +53,23 @@ export const Container = styled.header`
         clip-path: inset(50%);
         border: 0;
       }
-      input {
-        display: inline-block;
+      svg {
         width: 100%;
+        height: 100%;
+      }
+    }
+    input {
+      display: inline-block;
+      width: 100%;
+      font: inherit;
+      font-size: 20px;
+      border: none;
+      outline: none;
+      padding-left: 4px;
+      padding-right: 4px;
+      &::placeholder {
         font: inherit;
-        font-size: 20px;
-        border: none;
-        outline: none;
-        padding-left: 4px;
-        padding-right: 4px;
-        &::placeholder {
-          font: inherit;
-          font-size: 18px;
-        }
+        font-size: 18px;
       }
     }
   }

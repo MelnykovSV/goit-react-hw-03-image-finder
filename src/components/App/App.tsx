@@ -28,6 +28,8 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
     modalTags: '',
   }
 
+  myref = React.createRef()
+
   componentDidUpdate(prevProps: Readonly<IAppState>, prevState: Readonly<IAppState>): void {
     if (this.state.searchInput !== prevState.searchInput) {
       this.fetchPics().then((data) => {
@@ -44,6 +46,7 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
     if (this.state.modalURL !== prevState.modalURL && this.state.modalURL !== '') {
       this.setState({ isModalOpen: true })
     }
+    this.scrollToBottom()
   }
 
   fetchPics = async (): Promise<Readonly<IServerResponseData>> => {
@@ -103,6 +106,14 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
     this.setState({ modalURL: '', isModalOpen: false })
   }
 
+  scrollToBottom = () => {
+    this.myref.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'end',
+      inline: 'nearest',
+    })
+  }
+
   render() {
     if (this.state.status === 'idle') {
       return (
@@ -111,6 +122,7 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
             <Modal modalCloseHandler={this.handleModalClose} largeImageUrl={this.state.modalURL}></Modal>
           )}
           <Searchbar submitHandler={this.handleFormSubmit} />
+          <div ref={this.myref}></div>
         </Container>
       )
     } else if (this.state.status === 'loading') {
@@ -124,6 +136,7 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
           <Footer>
             <Dna />
           </Footer>
+          <div ref={this.myref}></div>
         </Container>
       )
     } else if (this.state.status === 'loaded') {
@@ -139,6 +152,7 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
               <Button pageIncrementor={this.incrementPages} />
             )}
           </Footer>
+          <div ref={this.myref}></div>
         </Container>
       )
     } else {
@@ -146,7 +160,11 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
     return (
       <Container>
         {this.state.isModalOpen && (
-          <Modal modalCloseHandler={this.handleModalClose} largeImageUrl={this.state.modalURL}></Modal>
+          <Modal
+            modalCloseHandler={this.handleModalClose}
+            largeImageUrl={this.state.modalURL}
+            imageTags={this.state.modalTags}
+          ></Modal>
         )}
         <Searchbar submitHandler={this.handleFormSubmit} />
         <ImageGallery imageClickHandler={this.handleImageClick} picsToRender={this.state.picsToRender}></ImageGallery>
@@ -157,6 +175,7 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
 
           <Dna />
         </Footer>
+        <div ref={this.myref}></div>
       </Container>
     )
   }

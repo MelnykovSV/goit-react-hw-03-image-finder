@@ -2,6 +2,8 @@ import React from 'react'
 import { ISearchbarProps } from '../../interfaces'
 import { Container } from './Searchbar.styled'
 
+import { BiSearchAlt2 } from 'react-icons/bi'
+
 export class Searchbar extends React.Component<ISearchbarProps> {
   formSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
@@ -18,6 +20,7 @@ export class Searchbar extends React.Component<ISearchbarProps> {
         <form className='form' onSubmit={this.formSubmit}>
           <button type='submit' className='button'>
             <span className='button-label'>Search</span>
+            <BiSearchAlt2 />
           </button>
 
           <input

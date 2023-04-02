@@ -13,18 +13,30 @@ export class Modal extends React.Component<Readonly<IModalProps>, Readonly<IModa
   state = {
     showLoader: true,
   }
-  componentDidMount(): void {}
+  componentDidMount(): void {
+    document.addEventListener('keydown', this.keyDownHandler)
+  }
 
-  componentWillUnmount(): void {}
+  componentWillUnmount(): void {
+    document.removeEventListener('keydown', this.keyDownHandler)
+  }
+
+  keyDownHandler = (e: KeyboardEvent) => {
+    if (e.keyCode === 27) {
+      this.props.modalCloseHandler()
+    }
+  }
+
+  clickHandler = (e: MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    if (e.target.nodeName === 'DIV') {
+      this.props.modalCloseHandler()
+    }
+  }
 
   render() {
     return createPortal(
-      <Container>
+      <Container onClick={this.clickHandler}>
         <div>
-          <button type='button' onClick={this.props.modalCloseHandler}>
-            Close
-          </button>
-
           {this.state.showLoader && (
             <ThreeCircles
               height='100'
@@ -41,7 +53,8 @@ export class Modal extends React.Component<Readonly<IModalProps>, Readonly<IModa
           )}
           <img
             src={this.props.largeImageUrl}
-            alt=''
+            alt={this.props.imageTags}
+            className='modal-image'
             onLoad={() => {
               this.setState({ showLoader: false })
             }}
