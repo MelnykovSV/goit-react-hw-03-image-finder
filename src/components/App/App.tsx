@@ -1,19 +1,18 @@
 import React from 'react'
-import { IAppState } from '../../interfaces'
-import { IserverResponseData } from '../../interfaces'
-import { PICS_PER_PAGE } from '../../constants'
+
+import { PICS_PER_PAGE, URL_BASE } from '../../constants'
+import { IAppState, IServerResponseData } from '../../interfaces'
 
 import { Searchbar } from '../Searchbar/Searchbar'
 import { Button } from '../Button/Button'
 import { ImageGallery } from '../ImageGallery/ImageGallery'
 import { Modal } from '../Modal/Modal'
-
 import { Footer } from '../Footer/Footer'
 import { Dna } from 'react-loader-spinner'
 
 import { Container } from './App.styled'
 
-export class App extends React.Component<{}, IAppState> {
+export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
   state = {
     status: 'idle',
 
@@ -29,10 +28,9 @@ export class App extends React.Component<{}, IAppState> {
     modalTags: '',
   }
 
-  componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<{}>, snapshot?: any): void {
+  componentDidUpdate(prevProps: Readonly<IAppState>, prevState: Readonly<IAppState>): void {
     if (this.state.searchInput !== prevState.searchInput) {
       this.fetchPics().then((data) => {
-        console.log(data)
         this.setState({ picsToRender: data.hits })
       })
 
@@ -48,13 +46,11 @@ export class App extends React.Component<{}, IAppState> {
     }
   }
 
-  fetchPics = async (): Promise<IServerResponseData> => {
-    const urlBase = 'https://pixabay.com/api/?key=33543328-1e01a52b77697b8d064c91a7e'
-
+  fetchPics = async (): Promise<Readonly<IServerResponseData>> => {
     this.setState({ status: 'loading' })
     try {
       const response = await fetch(
-        `${urlBase}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${PICS_PER_PAGE}&page=${this.state.page}`,
+        `${URL_BASE}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${PICS_PER_PAGE}&page=${this.state.page}`,
       )
       const data = await response.json()
       this.checkTotalHits(data)
@@ -67,32 +63,20 @@ export class App extends React.Component<{}, IAppState> {
     }
   }
 
-  checkTotalHits = (serverResponse: IServerResponseData) => {
+  checkTotalHits = (serverResponse: Readonly<IServerResponseData>) => {
     if (serverResponse.hits.length !== 0) {
       if (serverResponse.totalHits >= 500) {
-        /// 500-519 hits
-
         if (serverResponse.total < PICS_PER_PAGE * Math.ceil(500 / PICS_PER_PAGE)) {
-          console.log(`We got ${Math.ceil(serverResponse.total / PICS_PER_PAGE)} pages`)
-          console.log(`We got ${serverResponse.total} hits`)
           this.setState({ totalHits: serverResponse.total })
 
           return
         }
 
-        /// 520+ hits
-        // console.log(serverResponse)
-
-        console.log(`We got ${Math.ceil(500 / PICS_PER_PAGE)} pages`)
-        console.log(`We got ${PICS_PER_PAGE * Math.ceil(500 / PICS_PER_PAGE)} hits`)
         this.setState({ totalHits: PICS_PER_PAGE * Math.ceil(500 / PICS_PER_PAGE) })
 
         return
       }
 
-      /// 1-499            hits
-      console.log(`We got ${Math.ceil(serverResponse.totalHits / PICS_PER_PAGE)} pages`)
-      console.log(`We got ${serverResponse.totalHits} hits`)
       this.setState({ totalHits: serverResponse.totalHits })
 
       return
@@ -102,21 +86,17 @@ export class App extends React.Component<{}, IAppState> {
     this.setState({ totalHits: 0 })
   }
 
-  incrementPages = (e) => {
+  incrementPages = () => {
     this.setState((prevState) => {
-      if (Math.ceil(this.totalHits / PICS_PER_PAGE) === prevState.page + 1) {
-        e.target.disabled = true
-      }
-
       return { page: prevState.page + 1 }
     })
   }
 
-  handleFormSubmit = (value: string) => {
+  handleFormSubmit = (value: Readonly<string>) => {
     this.setState({ searchInput: value, page: 1 })
   }
 
-  handleImageClick = (imageURL: string, tags: string): void => {
+  handleImageClick = (imageURL: Readonly<string>, tags: Readonly<string>): void => {
     this.setState({ modalURL: imageURL, modalTags: tags })
   }
   handleModalClose = (): void => {
