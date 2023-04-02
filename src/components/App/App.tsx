@@ -1,48 +1,162 @@
 import React from 'react'
-import { IAppState } from '../../interfaces'
-import { IserverResponseData } from '../../interfaces'
+
+import { PICS_PER_PAGE, URL_BASE } from '../../constants'
+import { IAppState, IServerResponseData } from '../../interfaces'
 
 import { Searchbar } from '../Searchbar/Searchbar'
 import { Button } from '../Button/Button'
 import { ImageGallery } from '../ImageGallery/ImageGallery'
 import { Modal } from '../Modal/Modal'
+import { Footer } from '../Footer/Footer'
+import { Dna } from 'react-loader-spinner'
 
 import { Container } from './App.styled'
 
-export class App extends React.Component<{}, IAppState> {
+export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
   state = {
+    status: 'idle',
+
     searchInput: '',
+
+    page: 1,
+    picsToRender: [],
+    totalHits: 0,
+    error: '',
+
     modalURL: '',
     isModalOpen: false,
+    modalTags: '',
   }
-  componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<IAppState>, snapshot?: any): void {
+
+  componentDidUpdate(prevProps: Readonly<IAppState>, prevState: Readonly<IAppState>): void {
+    if (this.state.searchInput !== prevState.searchInput) {
+      this.fetchPics().then((data) => {
+        this.setState({ picsToRender: data.hits })
+      })
+
+      return
+    }
+    if (this.state.page !== prevState.page && this.state.page !== 1) {
+      this.fetchPics().then((data) => {
+        this.setState((prevState) => ({ picsToRender: [...prevState.picsToRender, ...data.hits] }))
+      })
+    }
     if (this.state.modalURL !== prevState.modalURL && this.state.modalURL !== '') {
       this.setState({ isModalOpen: true })
     }
   }
 
-  handleFormSubmit = (value: string) => {
-    this.setState({ searchInput: value })
+  fetchPics = async (): Promise<Readonly<IServerResponseData>> => {
+    this.setState({ status: 'loading' })
+    try {
+      const response = await fetch(
+        `${URL_BASE}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${PICS_PER_PAGE}&page=${this.state.page}`,
+      )
+      const data = await response.json()
+      this.checkTotalHits(data)
+      return data
+    } catch (error) {
+      this.setState({ status: 'error' })
+      throw error
+    } finally {
+      this.setState({ status: 'loaded' })
+    }
   }
 
-  handleImageClick = (imageURL: string): void => {
-    this.setState({ modalURL: imageURL })
+  checkTotalHits = (serverResponse: Readonly<IServerResponseData>) => {
+    if (serverResponse.hits.length !== 0) {
+      if (serverResponse.totalHits >= 500) {
+        if (serverResponse.total < PICS_PER_PAGE * Math.ceil(500 / PICS_PER_PAGE)) {
+          this.setState({ totalHits: serverResponse.total })
+
+          return
+        }
+
+        this.setState({ totalHits: PICS_PER_PAGE * Math.ceil(500 / PICS_PER_PAGE) })
+
+        return
+      }
+
+      this.setState({ totalHits: serverResponse.totalHits })
+
+      return
+    }
+
+    console.log('Sorry, there are no images matching your search query. Please try again.')
+    this.setState({ totalHits: 0 })
+  }
+
+  incrementPages = () => {
+    this.setState((prevState) => {
+      return { page: prevState.page + 1 }
+    })
+  }
+
+  handleFormSubmit = (value: Readonly<string>) => {
+    this.setState({ searchInput: value, page: 1 })
+  }
+
+  handleImageClick = (imageURL: Readonly<string>, tags: Readonly<string>): void => {
+    this.setState({ modalURL: imageURL, modalTags: tags })
   }
   handleModalClose = (): void => {
     this.setState({ modalURL: '', isModalOpen: false })
   }
 
   render() {
-    console.log('app render')
+    if (this.state.status === 'idle') {
+      return (
+        <Container>
+          {this.state.isModalOpen && (
+            <Modal modalCloseHandler={this.handleModalClose} largeImageUrl={this.state.modalURL}></Modal>
+          )}
+          <Searchbar submitHandler={this.handleFormSubmit} />
+        </Container>
+      )
+    } else if (this.state.status === 'loading') {
+      return (
+        <Container>
+          {this.state.isModalOpen && (
+            <Modal modalCloseHandler={this.handleModalClose} largeImageUrl={this.state.modalURL}></Modal>
+          )}
+          <Searchbar submitHandler={this.handleFormSubmit} />
+          <ImageGallery imageClickHandler={this.handleImageClick} picsToRender={this.state.picsToRender}></ImageGallery>
+          <Footer>
+            <Dna />
+          </Footer>
+        </Container>
+      )
+    } else if (this.state.status === 'loaded') {
+      return (
+        <Container>
+          {this.state.isModalOpen && (
+            <Modal modalCloseHandler={this.handleModalClose} largeImageUrl={this.state.modalURL}></Modal>
+          )}
+          <Searchbar submitHandler={this.handleFormSubmit} />
+          <ImageGallery imageClickHandler={this.handleImageClick} picsToRender={this.state.picsToRender}></ImageGallery>
+          <Footer>
+            {this.state.page !== Math.ceil(this.state.totalHits / PICS_PER_PAGE) && (
+              <Button pageIncrementor={this.incrementPages} />
+            )}
+          </Footer>
+        </Container>
+      )
+    } else {
+    }
     return (
       <Container>
         {this.state.isModalOpen && (
           <Modal modalCloseHandler={this.handleModalClose} largeImageUrl={this.state.modalURL}></Modal>
         )}
         <Searchbar submitHandler={this.handleFormSubmit} />
-        <ImageGallery searchInput={this.state.searchInput} imageClickHandler={this.handleImageClick}>
-          {/* <Button  /> */}
-        </ImageGallery>
+        <ImageGallery imageClickHandler={this.handleImageClick} picsToRender={this.state.picsToRender}></ImageGallery>
+        <Footer>
+          {this.state.page !== Math.ceil(this.state.totalHits / PICS_PER_PAGE) && (
+            <Button pageIncrementor={this.incrementPages} />
+          )}
+
+          <Dna />
+        </Footer>
       </Container>
     )
   }

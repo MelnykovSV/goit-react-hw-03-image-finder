@@ -1,15 +1,20 @@
 export interface IAppState {
+  status: string
+
   searchInput: string
+
+  page: number
+  picsToRender: IImageData[]
+  totalHits: number
+  error: string
+
+  modalURL: string
+  isModalOpen: boolean
+  modalTags: string
 }
-// export interface IAppState {
-//   response: IImageData[]
-//   page: number
-//   loading: boolean
-//   totalHits: number
-// }
 
 export interface IImageData {
-  id: string
+  id: number
   largeImageURL: string
   tags: string
   webformatURL: string
@@ -26,7 +31,31 @@ export interface IServerResponseData {
 }
 
 export interface IButtonProps {
-  // submitHandler: (serverResponse: IserverResponseData) => void
-  fetchHandler: (e: React.SyntheticEvent) => Promise<IServerResponseData>
-  pagesIncrementor: () => void
+  pageIncrementor: () => void
+}
+
+export interface IModalProps {
+  modalCloseHandler: () => void
+  largeImageUrl: string
+}
+
+export interface IModalState {
+  showLoader: boolean
+}
+
+export interface IImageGalleryProps {
+  imageClickHandler: (imageURL: string, tags: string) => void
+  picsToRender: IImageData[]
+}
+
+export interface IImageGalleryItemProps {
+  webformatURL: string
+  tags: string
+  largeImageURL: string
+  imageClickHandler: (imageURL: string, tags: string) => void
+  key: number
+}
+
+export interface IFooter {
+  children?: React.ReactNode
 }

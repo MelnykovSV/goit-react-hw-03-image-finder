@@ -1,11 +1,15 @@
 import React from 'react'
-import { Container } from './Modal.styled'
 import { createPortal } from 'react-dom'
+
+import { IModalProps, IModalState } from '../../interfaces'
+
 import { ThreeCircles } from 'react-loader-spinner'
 
-const modalRoot = document.querySelector('#modal-root')
+import { Container } from './Modal.styled'
 
-export class Modal extends React.Component {
+const modalRoot: Element | DocumentFragment = document.querySelector('#modal-root')!
+
+export class Modal extends React.Component<Readonly<IModalProps>, Readonly<IModalState>> {
   state = {
     showLoader: true,
   }
