@@ -1,37 +1,35 @@
 import React from 'react'
 import { ISearchbarProps } from '../../interfaces'
+import { Formik, Form, Field } from 'formik'
 import { Container } from './Searchbar.styled'
 
 import { BiSearchAlt2 } from 'react-icons/bi'
 
 export class Searchbar extends React.Component<ISearchbarProps> {
-  formSubmit = async (e: React.SyntheticEvent) => {
-    e.preventDefault()
-    const target = e.target as typeof e.target & {
-      searchInput: { value: string }
-    }
-
-    this.props.submitHandler(target.searchInput.value)
+  formSubmit = async (values: { searchInput: string }) => {
+    this.props.submitHandler(values.searchInput)
   }
 
   render() {
     return (
       <Container className='searchbar'>
-        <form className='form' onSubmit={this.formSubmit}>
-          <button type='submit' className='button'>
-            <span className='button-label'>Search</span>
-            <BiSearchAlt2 />
-          </button>
+        <Formik initialValues={{ searchInput: '' }} onSubmit={this.formSubmit}>
+          <Form className='form'>
+            <button type='submit' className='button'>
+              <span className='button-label'>Search</span>
+              <BiSearchAlt2 />
+            </button>
 
-          <input
-            className='input'
-            type='text'
-            autoComplete='off'
-            name='searchInput'
-            autoFocus
-            placeholder='Search images and photos'
-          />
-        </form>
+            <Field
+              className='input'
+              type='text'
+              autoComplete='off'
+              name='searchInput'
+              autoFocus
+              placeholder='Search images and photos'
+            />
+          </Form>
+        </Formik>
       </Container>
     )
   }
