@@ -4,5 +4,5 @@ export const Container = styled.footer`
   align-items: center;
   justify-content: center;
   /* padding-bottom: 24px; */
-  height: 80px;
+  min-height: 80px;
 `

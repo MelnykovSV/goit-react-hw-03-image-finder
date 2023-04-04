@@ -150,10 +150,18 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
           <Searchbar submitHandler={this.handleFormSubmit} />
           <ImageGallery imageClickHandler={this.handleImageClick} picsToRender={this.state.picsToRender}></ImageGallery>
           <Footer>
-            {this.state.page !== Math.ceil(this.state.totalHits / PICS_PER_PAGE) && (
-              <Button pageIncrementor={this.incrementPages} />
+            {this.state.page !== Math.ceil(this.state.totalHits / PICS_PER_PAGE) &&
+              this.state.totalHits >= PICS_PER_PAGE && <Button pageIncrementor={this.incrementPages} />}
+
+            {this.state.totalHits <= PICS_PER_PAGE && (
+              <div>
+                <p>Sorry, there are no images matching your search query. Please try again.</p>
+                {/* <img src='https://i.kym-cdn.com/photos/images/original/001/042/619/4ea.jpg'></img> */}
+                <img src='https://i.kym-cdn.com/photos/images/original/000/336/370/361.jpg'></img>
+              </div>
             )}
           </Footer>
+
           <div ref={this.myref}></div>
         </Container>
       )
