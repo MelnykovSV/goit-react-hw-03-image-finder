@@ -37,6 +37,7 @@ export interface IButtonProps {
 export interface IModalProps {
   modalCloseHandler: () => void
   largeImageUrl: string
+  imageTags: string
 }
 
 export interface IModalState {

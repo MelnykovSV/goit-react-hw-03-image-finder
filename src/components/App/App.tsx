@@ -46,7 +46,9 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
     if (this.state.modalURL !== prevState.modalURL && this.state.modalURL !== '') {
       this.setState({ isModalOpen: true })
     }
-    this.scrollToBottom()
+    if (this.state.picsToRender !== prevState.picsToRender) {
+      this.scrollToBottom()
+    }
   }
 
   fetchPics = async (): Promise<Readonly<IServerResponseData>> => {
