@@ -8,6 +8,7 @@ import { Button } from '../Button/Button'
 import { ImageGallery } from '../ImageGallery/ImageGallery'
 import { Modal } from '../Modal/Modal'
 import { Footer } from '../Footer/Footer'
+import { ErrorComponent } from '../ErrorComponent/ErrorComponent'
 import { Dna } from 'react-loader-spinner'
 
 import { Container } from './App.styled'
@@ -28,19 +29,24 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
     modalTags: '',
   }
 
-  myref = React.createRef<HTMLDivElement>()
+  // myref = React.createRef<HTMLDivElement>()
 
   componentDidUpdate(prevProps: Readonly<IAppState>, prevState: Readonly<IAppState>): void {
-    console.log(this.myref)
+    //Writes new array of pictures to rendder  to state if search input was changed
     if (this.state.searchInput !== prevState.searchInput) {
       this.fetchPics().then((data) => {
         if (data) {
-          this.setState({ picsToRender: data.hits })
+          const purifiedData = data.hits.map(({ id, largeImageURL, webformatURL, tags }) => {
+            return { id, largeImageURL, webformatURL, tags }
+          })
+          this.setState({ picsToRender: purifiedData })
         }
       })
 
       return
     }
+
+    //Updates an array of pictures to render to state if user requested new page
     if (this.state.page !== prevState.page && this.state.page !== 1) {
       this.fetchPics().then((data) => {
         if (data) {
@@ -48,21 +54,27 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
         }
       })
     }
-    if (this.state.modalURL !== prevState.modalURL && this.state.modalURL !== '') {
-      this.setState({ isModalOpen: true })
-    }
+
+    // Scrolls to bottom after new portion of pictures rendered after click on "Get more"
     if (this.state.picsToRender !== prevState.picsToRender) {
       this.scrollToBottom()
     }
+
+    // Opens modal by click on the picture
+    if (this.state.modalURL !== prevState.modalURL && this.state.modalURL !== '') {
+      this.setState({ isModalOpen: true })
+    }
   }
 
+  //// Method to fetch pictures
   fetchPics = async (): Promise<Readonly<IServerResponseData | void>> => {
-    this.setState({ status: 'loading' })
+    this.setState({ status: 'pending' })
     try {
       const response = await fetch(
         `${URL_BASE}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${PICS_PER_PAGE}&page=${this.state.page}`,
       )
       if (response.ok) {
+        this.setState({ error: null })
         const data = await response.json()
         this.checkTotalHits(data)
         return data
@@ -70,13 +82,15 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
         Promise.reject(new Error('Something went wrong!'))
       }
     } catch (error) {
-      this.setState({ status: 'error', error })
+      this.setState({ status: 'rejected', error })
 
       throw error
     } finally {
-      this.setState({ status: 'loaded' })
+      this.setState({ status: 'resolved' })
     }
   }
+
+  //// Method to count a real number of hits from pixabay
 
   checkTotalHits = (serverResponse: Readonly<IServerResponseData>) => {
     if (serverResponse.hits.length !== 0) {
@@ -115,20 +129,18 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
     this.setState({ modalURL: imageURL, modalTags: tags })
   }
   handleModalClose = (): void => {
-    this.setState({ modalURL: '', isModalOpen: false })
+    this.setState({ modalURL: '', modalTags: '', isModalOpen: false })
   }
 
   scrollToBottom = () => {
-    if (this.myref.current) {
-      this.myref.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'end',
-        inline: 'nearest',
-      })
-    }
+    window.scrollBy({
+      top: 260 * 2,
+      behavior: 'smooth',
+    })
   }
 
   render() {
+    /// IDLE
     if (this.state.status === 'idle') {
       return (
         <Container>
@@ -140,10 +152,12 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
             ></Modal>
           )}
           <Searchbar submitHandler={this.handleFormSubmit} />
-          <div ref={this.myref}></div>
         </Container>
       )
-    } else if (this.state.status === 'loading') {
+    }
+
+    /// PENDING
+    else if (this.state.status === 'pending') {
       return (
         <Container>
           {this.state.isModalOpen && (
@@ -158,10 +172,12 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
           <Footer>
             <Dna />
           </Footer>
-          <div ref={this.myref}></div>
         </Container>
       )
-    } else if (this.state.status === 'loaded') {
+    }
+
+    /// RESOLVED
+    else if (this.state.status === 'resolved') {
       return (
         <Container>
           {this.state.isModalOpen && (
@@ -178,17 +194,15 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
               this.state.totalHits >= PICS_PER_PAGE && <Button pageIncrementor={this.incrementPages} />}
 
             {this.state.totalHits === 0 && (
-              <div>
-                <p>Sorry, there are no images matching your search query. Please try again.</p>
-                <img src='https://i.kym-cdn.com/photos/images/original/000/336/370/361.jpg' alt='sad bear'></img>
-              </div>
+              <ErrorComponent errorMessage='Sorry, there are no images matching your search query. Please try again.' />
             )}
           </Footer>
-
-          <div ref={this.myref}></div>
         </Container>
       )
-    } else {
+    }
+
+    /// REJECTED
+    else if (this.state.status === 'rejected') {
     }
     return (
       <Container>
@@ -200,15 +214,9 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
           ></Modal>
         )}
         <Searchbar submitHandler={this.handleFormSubmit} />
-        <ImageGallery imageClickHandler={this.handleImageClick} picsToRender={this.state.picsToRender}></ImageGallery>
         <Footer>
-          {this.state.page !== Math.ceil(this.state.totalHits / PICS_PER_PAGE) && (
-            <Button pageIncrementor={this.incrementPages} />
-          )}
-
-          <Dna />
+          <ErrorComponent errorMessage={this.state.error} />
         </Footer>
-        <div ref={this.myref}></div>
       </Container>
     )
   }

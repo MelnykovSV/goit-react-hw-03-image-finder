@@ -13,6 +13,7 @@ export class Modal extends React.Component<Readonly<IModalProps>, Readonly<IModa
   state = {
     showLoader: true,
   }
+
   componentDidMount(): void {
     document.addEventListener('keydown', this.keyDownHandler)
   }

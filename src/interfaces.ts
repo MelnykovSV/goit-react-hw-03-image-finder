@@ -61,6 +61,10 @@ export interface IFooter {
   children?: React.ReactNode
 }
 
+export interface IErrorComponentProps {
+  errorMessage: string | null
+}
+
 // export interface Imyref {
 //   current: { scrollIntoView: ({behavior: string; block: string; inline: string}) => void } | null
 // }

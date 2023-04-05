@@ -1,13 +1,10 @@
-import React from 'react'
-import { IButtonProps } from '../../interfaces'
 import { Container } from './Button.styled'
+import { IButtonProps } from '../../interfaces'
 
-export class Button extends React.Component<Readonly<IButtonProps>> {
-  render() {
-    return (
-      <Container type='button' onClick={this.props.pageIncrementor}>
-        Get more
-      </Container>
-    )
-  }
+export const Button = ({ pageIncrementor }: IButtonProps) => {
+  return (
+    <Container type='button' onClick={pageIncrementor}>
+      Get more
+    </Container>
+  )
 }
