@@ -21,26 +21,31 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
     page: 1,
     picsToRender: [],
     totalHits: 0,
-    error: '',
+    error: null,
 
     modalURL: '',
     isModalOpen: false,
     modalTags: '',
   }
 
-  myref = React.createRef()
+  myref = React.createRef<HTMLDivElement>()
 
   componentDidUpdate(prevProps: Readonly<IAppState>, prevState: Readonly<IAppState>): void {
+    console.log(this.myref)
     if (this.state.searchInput !== prevState.searchInput) {
       this.fetchPics().then((data) => {
-        this.setState({ picsToRender: data.hits })
+        if (data) {
+          this.setState({ picsToRender: data.hits })
+        }
       })
 
       return
     }
     if (this.state.page !== prevState.page && this.state.page !== 1) {
       this.fetchPics().then((data) => {
-        this.setState((prevState) => ({ picsToRender: [...prevState.picsToRender, ...data.hits] }))
+        if (data) {
+          this.setState((prevState) => ({ picsToRender: [...prevState.picsToRender, ...data.hits] }))
+        }
       })
     }
     if (this.state.modalURL !== prevState.modalURL && this.state.modalURL !== '') {
@@ -51,17 +56,22 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
     }
   }
 
-  fetchPics = async (): Promise<Readonly<IServerResponseData>> => {
+  fetchPics = async (): Promise<Readonly<IServerResponseData | void>> => {
     this.setState({ status: 'loading' })
     try {
       const response = await fetch(
         `${URL_BASE}&q=${this.state.searchInput}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${PICS_PER_PAGE}&page=${this.state.page}`,
       )
-      const data = await response.json()
-      this.checkTotalHits(data)
-      return data
+      if (response.ok) {
+        const data = await response.json()
+        this.checkTotalHits(data)
+        return data
+      } else {
+        Promise.reject(new Error('Something went wrong!'))
+      }
     } catch (error) {
-      this.setState({ status: 'error' })
+      this.setState({ status: 'error', error })
+
       throw error
     } finally {
       this.setState({ status: 'loaded' })
@@ -109,11 +119,13 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
   }
 
   scrollToBottom = () => {
-    this.myref.current.scrollIntoView({
-      behavior: 'smooth',
-      block: 'end',
-      inline: 'nearest',
-    })
+    if (this.myref.current) {
+      this.myref.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest',
+      })
+    }
   }
 
   render() {
@@ -121,7 +133,11 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
       return (
         <Container>
           {this.state.isModalOpen && (
-            <Modal modalCloseHandler={this.handleModalClose} largeImageUrl={this.state.modalURL}></Modal>
+            <Modal
+              modalCloseHandler={this.handleModalClose}
+              largeImageUrl={this.state.modalURL}
+              imageTags={this.state.modalTags}
+            ></Modal>
           )}
           <Searchbar submitHandler={this.handleFormSubmit} />
           <div ref={this.myref}></div>
@@ -131,7 +147,11 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
       return (
         <Container>
           {this.state.isModalOpen && (
-            <Modal modalCloseHandler={this.handleModalClose} largeImageUrl={this.state.modalURL}></Modal>
+            <Modal
+              modalCloseHandler={this.handleModalClose}
+              largeImageUrl={this.state.modalURL}
+              imageTags={this.state.modalTags}
+            ></Modal>
           )}
           <Searchbar submitHandler={this.handleFormSubmit} />
           <ImageGallery imageClickHandler={this.handleImageClick} picsToRender={this.state.picsToRender}></ImageGallery>
@@ -145,7 +165,11 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
       return (
         <Container>
           {this.state.isModalOpen && (
-            <Modal modalCloseHandler={this.handleModalClose} largeImageUrl={this.state.modalURL}></Modal>
+            <Modal
+              modalCloseHandler={this.handleModalClose}
+              largeImageUrl={this.state.modalURL}
+              imageTags={this.state.modalTags}
+            ></Modal>
           )}
           <Searchbar submitHandler={this.handleFormSubmit} />
           <ImageGallery imageClickHandler={this.handleImageClick} picsToRender={this.state.picsToRender}></ImageGallery>
@@ -153,11 +177,10 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
             {this.state.page !== Math.ceil(this.state.totalHits / PICS_PER_PAGE) &&
               this.state.totalHits >= PICS_PER_PAGE && <Button pageIncrementor={this.incrementPages} />}
 
-            {this.state.totalHits <= PICS_PER_PAGE && (
+            {this.state.totalHits === 0 && (
               <div>
                 <p>Sorry, there are no images matching your search query. Please try again.</p>
-                {/* <img src='https://i.kym-cdn.com/photos/images/original/001/042/619/4ea.jpg'></img> */}
-                <img src='https://i.kym-cdn.com/photos/images/original/000/336/370/361.jpg'></img>
+                <img src='https://i.kym-cdn.com/photos/images/original/000/336/370/361.jpg' alt='sad bear'></img>
               </div>
             )}
           </Footer>

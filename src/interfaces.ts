@@ -6,7 +6,7 @@ export interface IAppState {
   page: number
   picsToRender: IImageData[]
   totalHits: number
-  error: string
+  error: unknown | null
 
   modalURL: string
   isModalOpen: boolean
@@ -60,3 +60,7 @@ export interface IImageGalleryItemProps {
 export interface IFooter {
   children?: React.ReactNode
 }
+
+// export interface Imyref {
+//   current: { scrollIntoView: ({behavior: string; block: string; inline: string}) => void } | null
+// }

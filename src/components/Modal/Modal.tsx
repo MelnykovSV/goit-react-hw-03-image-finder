@@ -27,8 +27,9 @@ export class Modal extends React.Component<Readonly<IModalProps>, Readonly<IModa
     }
   }
 
-  clickHandler = (e: MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-    if (e.target.nodeName === 'DIV') {
+  clickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
+    const nodeName = e.target as HTMLDivElement
+    if (nodeName.nodeName === 'DIV') {
       this.props.modalCloseHandler()
     }
   }
