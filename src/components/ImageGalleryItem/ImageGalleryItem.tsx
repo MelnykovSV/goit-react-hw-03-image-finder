@@ -3,12 +3,12 @@ import { IImageGalleryItemProps } from '../../interfaces'
 import { Container } from './ImageGalleryItem.styled'
 
 export class ImageGalleryItem extends React.Component<Readonly<IImageGalleryItemProps>> {
-  state = {
-    largeImageURL: this.props.largeImageURL,
-  }
+  // state = {
+  //   largeImageURL: this.props.largeImageURL,
+  // }
 
   imageUrlDetector = () => {
-    this.props.imageClickHandler(this.state.largeImageURL, this.props.tags)
+    this.props.imageClickHandler(this.props.largeImageURL, this.props.tags)
   }
   render() {
     return (
