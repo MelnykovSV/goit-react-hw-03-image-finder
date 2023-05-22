@@ -5,7 +5,6 @@ import { Container } from './ErrorComponent.styled'
 const errorImage = require('./errorComponentImage.jpg')
 
 export const ErrorComponent = ({ errorMessage }: IErrorComponentProps) => {
-  console.log(errorImage)
   return (
     <Container>
       <p>{errorMessage ? errorMessage : 'Some unexpected error occured'}</p>

@@ -23,7 +23,7 @@ export class Modal extends React.Component<Readonly<IModalProps>, Readonly<IModa
   }
 
   keyDownHandler = (e: KeyboardEvent) => {
-    if (e.keyCode === 27) {
+    if (e.code === 'Escape') {
       this.props.modalCloseHandler()
     }
   }
