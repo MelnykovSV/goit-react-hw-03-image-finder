@@ -111,7 +111,6 @@ export class App extends React.Component<Readonly<{}>, Readonly<IAppState>> {
       return
     }
 
-    // console.log('Sorry, there are no images matching your search query. Please try again.')
     this.setState({ totalHits: 0 })
   }
 

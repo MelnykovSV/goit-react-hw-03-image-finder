@@ -1,8 +1,7 @@
 import { IErrorComponentProps } from '../../interfaces'
 import { Container } from './ErrorComponent.styled'
 
-///TODO: check this import
-const errorImage = require('./errorComponentImage.jpg')
+import errorImage from './errorComponentImage.jpg'
 
 export const ErrorComponent = ({ errorMessage }: IErrorComponentProps) => {
   return (
